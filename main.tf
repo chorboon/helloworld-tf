@@ -24,26 +24,34 @@ locals {
 # ------------------------------------------------------------------
 # VPC
 # ------------------------------------------------------------------
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 3.0"
+# module "vpc" {
+#   source  = "terraform-aws-modules/vpc/aws"
+#   version = "~> 3.0"
 
-  name = "HelloWorldVPC"
+#   name = "HelloWorldVPC"
 
-  cidr = "10.0.0.0/16"
+#   cidr = "10.0.0.0/16"
 
-  azs             = ["us-east-1a"]
-  public_subnets  = ["10.0.1.0/24"]
-  private_subnets = ["10.0.21.0/24"]
+#   azs             = ["us-east-1a"]
+#   public_subnets  = ["10.0.1.0/24"]
+#   private_subnets = ["10.0.21.0/24"]
 
-  enable_nat_gateway = true
+#   enable_nat_gateway = true
+# }
+
+resource "aws_vpc" "HelloWorld_vpc_1" {
+  cidr_block = "10.0.0.0/16"
+
+  enable_dns_support   = "true"
+  enable_dns_hostnames = "true"
+ 
+
 }
-
-resource "aws_security_group" "hello_world-ec2-sg" {
+resource "aws_security_group" "hello_world-22-sg" {
   name = "hello_world-ec2-sg"
 
   ingress {
-    description = "Allow Inbound to EC2"
+    description = "Allow Inbound to 22"
     from_port   = local.app_port
     to_port     = local.app_port
     protocol    = "tcp"
@@ -79,10 +87,10 @@ resource "aws_key_pair" "ssh-key" {
 }
 
 resource "aws_instance" "hello_world-1" {
-  ami           = "ami-02f3f602d23f1659d"
-  instance_type = "t2.micro"
-  key_name      = "ssh-key"
-  security_groups = ["hello_world-ec2-sg"]
+  ami             = "ami-02f3f602d23f1659d"
+  instance_type   = "t2.micro"
+  key_name        = "ssh-key"
+  security_groups = ["hello_world-22-sg"]
 
   provisioner "remote-exec" {
 
