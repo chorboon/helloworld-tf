@@ -44,8 +44,18 @@ resource "aws_vpc" "HelloWorld_vpc_1" {
 
   enable_dns_support   = "true"
   enable_dns_hostnames = "true"
- 
 
+
+}
+
+resource "aws_subnet" "web_subnet" {
+  vpc_id            = aws_vpc.HelloWorld_vpc_1.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "us-east-1a"
+
+  tags = {
+    Name = "tf-example"
+  }
 }
 resource "aws_security_group" "hello_world-22-sg" {
   name = "hello_world-ec2-sg"
@@ -91,6 +101,7 @@ resource "aws_instance" "hello_world-1" {
   instance_type   = "t2.micro"
   key_name        = "ssh-key"
   security_groups = ["hello_world-22-sg"]
+  subnet_id       = aws_subnet.web_subnet.id
 
   provisioner "remote-exec" {
 
