@@ -164,6 +164,42 @@ resource "aws_lb_listener" "front_end" {
     target_group_arn = aws_lb_target_group.front_end.arn
   }
 }
+
+resource "aws_launch_template" "web" {
+  name_prefix   = "web"
+  image_id      = "ami-02f3f602d23f1659d"
+  instance_type = "t2.micro"
+}
+
+resource "aws_launch_configuration" "web" {
+  name_prefix     = "web-asg-"
+  image_id        = "ami-02f3f602d23f1659d"
+  instance_type   = "t2.micro"
+  user_data       = file("user-data.sh")
+  security_groups = [aws_security_group.hello_world-sg.id]
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+resource "aws_autoscaling_group" "web-asg" {
+#  availability_zones = ["us-east-1a"]
+  desired_capacity   = 1
+  max_size           = 1
+  min_size           = 1
+  launch_configuration = aws_launch_configuration.web.name
+  vpc_zone_identifier       = [aws_subnet.web_subnet-1.id,aws_subnet.web_subnet-2.id,aws_subnet.web_subnet-3.id]
+#  vpc_zone_identifier  = module.vpc.public_subnets
+#   launch_template {
+#     id      = aws_launch_template.web.id
+#     version = "$Latest"
+#   }
+}
+
+resource "aws_autoscaling_attachment" "web" {
+  autoscaling_group_name = aws_autoscaling_group.web-asg.id
+  lb_target_group_arn   = aws_lb_target_group.front_end.arn
+}
 resource "aws_instance" "hello_world-1" {
   ami                    = "ami-02f3f602d23f1659d"
   instance_type          = "t2.micro"
