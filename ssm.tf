@@ -25,3 +25,11 @@ resource "aws_iam_role_policy_attachment" "dev-resources-ssm-policy" {
   role       = aws_iam_role.dev-resources-iam-role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
+
+resource "aws_ssm_activation" "web" {
+  name               = "test_ssm_activation"
+  description        = "Test"
+  iam_role           = aws_iam_role.dev-resources-iam-role.id
+  registration_limit = "5"
+  depends_on         = [aws_iam_role_policy_attachment.dev-resources-ssm-policy]
+}

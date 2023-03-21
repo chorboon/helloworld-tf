@@ -169,14 +169,15 @@ resource "aws_lb_listener" "front_end" {
 # }
 
 resource "aws_launch_configuration" "web" {
-  name_prefix       = "web-asg-"
-  image_id          = "ami-02f3f602d23f1659d"
-  instance_type     = "t2.micro"
-  user_data         = file("user-data.sh")
-  security_groups   = [aws_security_group.lb_sg.id]
-  enable_monitoring = true
+  name_prefix          = "web-asg-"
+  image_id             = "ami-02f3f602d23f1659d"
+  instance_type        = "t2.micro"
+  user_data            = file("user-data.sh")
+  security_groups      = [aws_security_group.lb_sg.id]
+  enable_monitoring    = true
+  iam_instance_profile = aws_iam_instance_profile.dev-resources-iam-profile.name
 
-  
+
   lifecycle {
     create_before_destroy = true
   }
