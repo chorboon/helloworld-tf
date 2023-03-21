@@ -38,23 +38,23 @@ resource "aws_route_table" "example" {
 
 }
 resource "aws_subnet" "web_subnet-1" {
-  vpc_id                  = aws_vpc.HelloWorld_vpc_1.id
-  cidr_block              = "10.0.0.0/24"
-  availability_zone       = "us-east-1a"
-#  map_public_ip_on_launch = true
+  vpc_id            = aws_vpc.HelloWorld_vpc_1.id
+  cidr_block        = "10.0.0.0/24"
+  availability_zone = "us-east-1a"
+  #  map_public_ip_on_launch = true
 
 }
 resource "aws_subnet" "web_subnet-2" {
-  vpc_id                  = aws_vpc.HelloWorld_vpc_1.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-east-1c"
-#  map_public_ip_on_launch = true
+  vpc_id            = aws_vpc.HelloWorld_vpc_1.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "us-east-1c"
+  #  map_public_ip_on_launch = true
 }
 resource "aws_subnet" "web_subnet-3" {
-  vpc_id                  = aws_vpc.HelloWorld_vpc_1.id
-  cidr_block              = "10.0.2.0/24"
-  availability_zone       = "us-east-1b"
-#  map_public_ip_on_launch = true
+  vpc_id            = aws_vpc.HelloWorld_vpc_1.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "us-east-1b"
+  #  map_public_ip_on_launch = true
 }
 
 resource "aws_main_route_table_association" "a" {
@@ -124,7 +124,7 @@ resource "aws_lb" "front_end" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.lb_sg.id]
-  subnets            = [aws_subnet.web_subnet-1.id,aws_subnet.web_subnet-2.id,aws_subnet.web_subnet-3.id]
+  subnets            = [aws_subnet.web_subnet-1.id, aws_subnet.web_subnet-2.id, aws_subnet.web_subnet-3.id]
 
   enable_deletion_protection = false
 
@@ -162,40 +162,63 @@ resource "aws_lb_listener" "front_end" {
   }
 }
 
-resource "aws_launch_template" "web" {
-  name_prefix   = "web"
-  image_id      = "ami-02f3f602d23f1659d"
-  instance_type = "t2.micro"
-}
+# resource "aws_launch_template" "web" {
+#   name_prefix   = "web"
+#   image_id      = "ami-02f3f602d23f1659d"
+#   instance_type = "t2.micro"
+# }
 
 resource "aws_launch_configuration" "web" {
-  name_prefix     = "web-asg-"
-  image_id        = "ami-02f3f602d23f1659d"
-  instance_type   = "t2.micro"
-  user_data       = file("user-data.sh")
-  security_groups = [aws_security_group.hello_world-sg.id]
+  name_prefix       = "web-asg-"
+  image_id          = "ami-02f3f602d23f1659d"
+  instance_type     = "t2.micro"
+  user_data         = file("user-data.sh")
+  security_groups   = [aws_security_group.lb_sg.id]
+  enable_monitoring = true
 
+  
   lifecycle {
     create_before_destroy = true
   }
 }
 resource "aws_autoscaling_group" "web-asg" {
-#  availability_zones = ["us-east-1a"]
-  desired_capacity   = 1
-  max_size           = 1
-  min_size           = 1
+  #  availability_zones = ["us-east-1a"]
+  desired_capacity     = 1
+  max_size             = 1
+  min_size             = 1
   launch_configuration = aws_launch_configuration.web.name
-  vpc_zone_identifier       = [aws_subnet.web_subnet-1.id,aws_subnet.web_subnet-2.id,aws_subnet.web_subnet-3.id]
-#  vpc_zone_identifier  = module.vpc.public_subnets
-#   launch_template {
-#     id      = aws_launch_template.web.id
-#     version = "$Latest"
-#   }
+  vpc_zone_identifier  = [aws_subnet.web_subnet-1.id, aws_subnet.web_subnet-2.id, aws_subnet.web_subnet-3.id]
+
+  #   launch_template {
+  #     id      = aws_launch_template.web.id
+  #     version = "$Latest"
+  #   }
+}
+
+#scale down at 1800 Singapore Time (1000 UTC)
+resource "aws_autoscaling_schedule" "scale_down" {
+  scheduled_action_name  = "scale_down"
+  min_size               = 0
+  max_size               = 0
+  desired_capacity       = 0
+  recurrence             = "0 10 * * *"
+  autoscaling_group_name = aws_autoscaling_group.web-asg.name
+}
+
+#Scale up at 0700 Singapore Time Mon-Fri (2300 UTC Sun-Thu)
+#Service should stay down during weekends
+resource "aws_autoscaling_schedule" "scale_up" {
+  scheduled_action_name  = "scale_up"
+  min_size               = 1
+  max_size               = 3
+  desired_capacity       = 1
+  recurrence             = "0 23 * * 0,1,2,3,4"
+  autoscaling_group_name = aws_autoscaling_group.web-asg.name
 }
 
 resource "aws_autoscaling_attachment" "web" {
   autoscaling_group_name = aws_autoscaling_group.web-asg.id
-  lb_target_group_arn   = aws_lb_target_group.front_end.arn
+  lb_target_group_arn    = aws_lb_target_group.front_end.arn
 }
 # resource "aws_instance" "hello_world-1" {
 #   ami                    = "ami-02f3f602d23f1659d"
