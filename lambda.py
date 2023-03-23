@@ -2,7 +2,7 @@ import os
 import json
         
 def lambda_handler(event, context):
-    json_region = os.environ['AWS_REGION']
+    json_region = os.environ['AWS_REGION'] 
     return {
         "statusCode": 200,
         "headers": {

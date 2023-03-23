@@ -158,7 +158,7 @@ resource "aws_security_group" "app_sg" {
     from_port   = local.app_port
     to_port     = local.app_port
     protocol    = "tcp"
-#   cidr_blocks = ["10.0.10.0/24","10.0.11.0/24"]
+    #   cidr_blocks = ["10.0.10.0/24","10.0.11.0/24"]
     cidr_blocks = ["0.0.0.0/0"]
   }
   #Outgoing traffic
@@ -206,7 +206,7 @@ resource "aws_lb" "front_end" {
   internal                   = false
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.app_sg.id]
-  subnets                    = [aws_subnet.public_subnet-1.id, aws_subnet.public_subnet-2.id,aws_subnet.public_subnet-3.id]
+  subnets                    = [aws_subnet.public_subnet-1.id, aws_subnet.public_subnet-2.id, aws_subnet.public_subnet-3.id]
   enable_deletion_protection = false
 
   #   access_logs {
@@ -263,9 +263,9 @@ resource "aws_autoscaling_group" "app-asg" {
   min_size             = 1
   launch_configuration = aws_launch_configuration.app.name
   vpc_zone_identifier  = [aws_subnet.app_subnet-1.id, aws_subnet.app_subnet-2.id, aws_subnet.app_subnet-3.id]
-  tag  {
-    key = "Name"
-    value = "app"
+  tag {
+    key                 = "Name"
+    value               = "app"
     propagate_at_launch = true
   }
 }
@@ -301,8 +301,8 @@ resource "aws_instance" "database" {
   vpc_security_group_ids = [aws_security_group.db-sg.id]
   subnet_id              = aws_subnet.db-1.id
   user_data              = file("user-data.sh")
-  monitoring    = true
-  iam_instance_profile = aws_iam_instance_profile.ssm-profile.name
+  monitoring             = true
+  iam_instance_profile   = aws_iam_instance_profile.ssm-profile.name
 
   tags = {
     Name = "db-1"
