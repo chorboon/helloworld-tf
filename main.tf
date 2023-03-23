@@ -189,18 +189,9 @@ resource "aws_lb" "front_end" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.lb_sg.id]
-#  subnets            = [aws_subnet.public_subnet-1.id,aws_subnet.public_subnet-2.id]
+  subnets            = [aws_subnet.public_subnet-1.id,aws_subnet.public_subnet-2.id]
   enable_deletion_protection = false
 
-  subnet_mapping {
-    subnet_id     = aws_subnet.public_subnet-1.id
-    allocation_id = aws_eip.frontend-lb-1.id
-  }
-
-  subnet_mapping {
-    subnet_id     = aws_subnet.public_subnet-2.id
-    allocation_id = aws_eip.frontend-lb-2.id
-  }
 #   access_logs {
 #     bucket  = aws_s3_bucket.lb_logs.id
 #     prefix  = "test-lb"
