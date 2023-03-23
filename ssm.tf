@@ -4,14 +4,14 @@ data "aws_iam_policy_document" "assume_role" {
 
     principals {
       type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
+      identifiers = ["ec2.amazonaws.com","lambda.amazonaws.com","backup.amazonaws.com"]
     }
 
     actions = ["sts:AssumeRole"]
   }
 }
-resource "aws_iam_instance_profile" "dev-resources-iam-profile" {
-  name = "ec2_profile"
+resource "aws_iam_instance_profile" "ssm-profile" {
+  name = "ssm_profile"
   role = aws_iam_role.ssm-role.name
 }
 
