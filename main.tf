@@ -26,13 +26,6 @@ resource "aws_vpc" "HelloWorld_vpc_1" {
 
 }
 
-resource "aws_eip" "frontend-lb-1" {
-  vpc = true
-}
-resource "aws_eip" "frontend-lb-2" {
-  vpc = true
-}
-
 resource "aws_eip" "nat_gateway" {
   vpc = true
 }
@@ -97,6 +90,13 @@ resource "aws_subnet" "public_subnet-2" {
   vpc_id            = aws_vpc.HelloWorld_vpc_1.id
   cidr_block        = "10.0.11.0/24"
   availability_zone = "us-east-1b"
+  #  map_public_ip_on_launch = true
+
+}
+resource "aws_subnet" "public_subnet-3" {
+  vpc_id            = aws_vpc.HelloWorld_vpc_1.id
+  cidr_block        = "10.0.12.0/24"
+  availability_zone = "us-east-1c"
   #  map_public_ip_on_launch = true
 
 }
@@ -206,7 +206,7 @@ resource "aws_lb" "front_end" {
   internal                   = false
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.app_sg.id]
-  subnets                    = [aws_subnet.public_subnet-1.id, aws_subnet.public_subnet-2.id]
+  subnets                    = [aws_subnet.public_subnet-1.id, aws_subnet.public_subnet-2.id,aws_subnet.public_subnet-3.id]
   enable_deletion_protection = false
 
   #   access_logs {
