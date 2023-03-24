@@ -24,7 +24,6 @@ resource "aws_directory_service_directory" "ad" {
     vpc_id     = aws_vpc.HelloWorld_vpc_1.id
     subnet_ids = ["${aws_subnet.ad-subnet-1.id}","${aws_subnet.ad-subnet-2.id}"]
   }
-
 }
 resource "aws_vpc_dhcp_options" "vpc-dhcp-options" {
   domain_name         = "ad_domain_name"
