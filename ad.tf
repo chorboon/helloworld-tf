@@ -56,7 +56,7 @@ resource "aws_ssm_document" "ad-server-domain-join-document" {
 }
 DOC
 }
-#resource "aws_ssm_association" "ad-server-association" {
-#  name        = "dir_default_doc"
-#  instance_id = aws_instance.database.id
-#}
+resource "aws_ssm_association" "ad-server-association" {
+  name        = "myapp_dir_default_doc"
+  instance_id = aws_instance.database.id
+}
