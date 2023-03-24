@@ -34,6 +34,7 @@ resource "aws_vpc_dhcp_options_association" "dns_resolver" {
   vpc_id          = aws_vpc.HelloWorld_vpc_1.id
   dhcp_options_id = aws_vpc_dhcp_options.vpc-dhcp-options.id
 }
+
 resource "aws_ssm_document" "ad-server-domain-join-document" {
   name          = "myapp_dir_default_doc"
   document_type = "Command"
@@ -48,8 +49,7 @@ resource "aws_ssm_document" "ad-server-domain-join-document" {
                   "directoryId": "${aws_directory_service_directory.ad.id}",
                   "directoryName": "${var.dir_domain_name}",
                   "directoryOU": "${var.dir_computer_ou}",
-                  "dnsIpAddresses": [
-                     "${aws_directory_service_directory.ad.dns_ip_addresses}",
+                  "dnsIpAddresses": ["${tolist(aws_directory_service_directory.ad.dns_ip_addresses)[0]}"]
                }
            }
         }
