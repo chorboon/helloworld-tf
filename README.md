@@ -1,14 +1,5 @@
 # helloworld-tf
 
-Terraform code
-
-1) Creates a VPC
-2) Create a Security Group
-3) Create 3 subnets - Web, App, Database
-3) Create an EC2 instance and 
-   - create ssh key cert and store it locally
-   - install/start nginx
-
 This project creates a single VPC with a single internet gateway for public facing services.
 
 An application load balancer is assigned a public IP and an aws_lb_listener listens to port 80, and redirects to a target group, also on port 80.
