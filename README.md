@@ -1,5 +1,7 @@
 # helloworld-tf
 
+ASSUMPTIONS: The user is trying to stay within free-tier or kept as cheap as possible. The AD server may cost money.
+
 This project creates a single VPC with a single internet gateway for public facing services.
 
 An application load balancer is assigned a public IP and an aws_lb_listener listens to port 80, and redirects to a target group, also on port 80.
